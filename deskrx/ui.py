@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from .core import HINT_LABELS, GroupRow, View, device_label
-from .events import EventLog
+from .core import HINT_LABELS, WEAK_DBM, GroupRow, View, device_label
+from .events import EventLog, EventSummary, summarize
 
 BLE_STALE_S = 30
 WIFI_STALE_S = 120
@@ -46,6 +46,13 @@ def _row_line(row: GroupRow) -> str:
     state = "알림" if row.alert else "확인 중"
     hint = f" · {HINT_LABELS.get(d.hint, d.hint)}" if d.hint and d.name else ""
     return f"  [{state}] {device_label(d)}{hint} ({kind}) {len(row.devices)}대, 평균 {ema} dBm"
+
+
+def _summary_line(x: EventSummary) -> str:
+    peak = "?" if x.peak is None else str(x.peak)
+    times = f"{_clock(x.first_started)}–{_clock(x.last_ended)}"
+    count = f"  {x.count}번" if x.count > 1 else ""
+    return f"  {times}  {x.label}{count}  최고 {peak} dBm"
 
 
 def _health_lines(health: dict) -> list:
@@ -96,15 +103,18 @@ def render(phase: str, now: float, started: float, view, events: EventLog, healt
         out.append("  없음")
     find_my = 0 if view is None else view.find_my
     out.append(f"꺼 둔 아이폰·에어태그 신호 {find_my}개")
-    out.append("사라진 새 전파(최근 10건)")
-    closed = events.closed[:10]
-    if closed:
-        for ev in closed:
-            peak = "?" if ev.peak is None else str(ev.peak)
-            end = _clock(ev.ended if ev.ended is not None else ev.last_seen)
-            out.append(f"  {_clock(ev.started)}–{end}  {ev.label}  최고 {peak} dBm")
+    summaries = summarize(events.closed)
+    strong = [x for x in summaries if x.peak is None or x.peak >= WEAK_DBM]
+    weak = [x for x in summaries if x.peak is not None and x.peak < WEAK_DBM]
+    out.append("사라진 새 전파(최근 10종)")
+    if strong:
+        out.extend(_summary_line(x) for x in strong[:10])
     else:
         out.append("  없음")
+    if weak:
+        out.append(f"멀리서 약하게 잡혔다 사라진 것 {len(weak)}종 {sum(x.count for x in weak)}번")
+        for x in sorted(weak, key=lambda x: x.count, reverse=True)[:3]:
+            out.append(f"  {x.label}  {x.count}번  최고 {x.peak} dBm")
     out.append(RULE)
     out.extend(_health_lines(health))
     return "\n".join(out)

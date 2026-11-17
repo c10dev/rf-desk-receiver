@@ -21,6 +21,45 @@ class Event:
     peak: Optional[int]
 
 
+@dataclass(frozen=True)
+class EventSummary:
+    key: str
+    label: str
+    source: str
+    count: int  # closed events with this key
+    first_started: float
+    last_ended: float
+    peak: Optional[int]  # strongest peak over those events
+
+
+def _ended(ev: Event) -> float:
+    return ev.ended if ev.ended is not None else ev.last_seen
+
+
+def summarize(closed: list) -> list:
+    """One summary per key. Label and source come from the newest event of the key."""
+    by_key: dict = {}
+    for ev in closed:
+        by_key.setdefault(ev.key, []).append(ev)
+    result = []
+    for key, events in by_key.items():
+        newest = max(events, key=_ended)
+        peaks = [e.peak for e in events if e.peak is not None]
+        result.append(
+            EventSummary(
+                key=key,
+                label=newest.label,
+                source=newest.source,
+                count=len(events),
+                first_started=min(e.started for e in events),
+                last_ended=_ended(newest),
+                peak=max(peaks) if peaks else None,
+            )
+        )
+    result.sort(key=lambda x: x.last_ended, reverse=True)
+    return result
+
+
 def iso_local(t: Optional[float]) -> Optional[str]:
     return None if t is None else datetime.fromtimestamp(t).isoformat(timespec="seconds")
 

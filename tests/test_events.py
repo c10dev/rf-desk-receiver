@@ -66,3 +66,19 @@ def test_short_ble_signal_leaves_start_and_end_lines(tmp_path):
     assert lines[0]["started"] == iso_local(base)  # first packet time
     assert lines[1]["started"] == iso_local(base)
     assert lines[1]["last_seen"] == iso_local(base + 10)
+
+
+def test_summarize_merges_same_key():
+    from deskrx.events import Event, summarize
+
+    closed = [  # newest first, as EventLog.closed
+        Event("k", "New Label", "BLE", 300.0, 320.0, 330.0, -60),
+        Event("k", "Old", "BLE", 200.0, 210.0, 220.0, -50),
+        Event("k", "Older", "BLE", 100.0, 110.0, 120.0, -70),
+        Event("other", "Other", "WIFI", 10.0, 20.0, 400.0, None),
+    ]
+    out = summarize(closed)
+    assert [x.key for x in out] == ["other", "k"]  # newest last_ended first
+    k = out[1]
+    assert (k.count, k.first_started, k.last_ended, k.peak) == (3, 100.0, 330.0, -50)
+    assert k.label == "New Label" and k.source == "BLE"
