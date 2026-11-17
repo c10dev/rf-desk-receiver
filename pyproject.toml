@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "deskrx"
+version = "0.1.0"
+description = "Desk-mounted laptop receiver that logs Wi-Fi and BLE signals in an empty classroom and reports new ones."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["bleak>=0.22"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["deskrx"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
