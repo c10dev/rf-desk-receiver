@@ -1,0 +1,17 @@
+deskrx
+Copyright 2026 deskrx contributors
+
+Licensed under the Apache License, Version 2.0.
+
+This program contains detection rules ported from KoriyoSCAN
+(https://github.com/reform-dev-team/exam-rf-guard),
+Copyright 2026 KoriyoSCAN contributors, licensed under the Apache License,
+Version 2.0. The ported rules are in deskrx/core.py: the signal group key, the
+same-access-point check, the empty-room counts, the watch decision, the
+reception periods, the RSSI smoothing and the signal hints. They were
+rewritten from Kotlin to Python and changed: the "acknowledged" list was
+removed and a record of vanished signals was added.
+
+This program is not part of KoriyoSCAN, and the KoriyoSCAN contributors do not
+endorse it. Product and company names that appear in the code describe
+observed signals and do not imply endorsement.

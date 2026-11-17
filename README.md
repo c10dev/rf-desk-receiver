@@ -73,3 +73,7 @@ Android 앱 KoriyoSCAN(`exam-rf-guard`)의 규칙을 옮겼다: `SignalGroups.kt
 ```
 uv run --with pytest pytest -q
 ```
+
+## 라이선스
+
+[Apache License 2.0](LICENSE)으로 공개한다. 판정 규칙은 [KoriyoSCAN](https://github.com/reform-dev-team/exam-rf-guard)(Apache License 2.0)에서 옮겼다. 옮긴 범위와 바꾼 점은 [NOTICE](NOTICE)에 있다. 이 프로그램은 KoriyoSCAN의 일부가 아니며 KoriyoSCAN 기여자가 보증하지 않는다.

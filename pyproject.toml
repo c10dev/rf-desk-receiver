@@ -8,6 +8,8 @@ version = "0.1.0"
 description = "Desk-mounted laptop receiver that logs Wi-Fi and BLE signals in an empty classroom and reports new ones."
 readme = "README.md"
 requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 dependencies = ["bleak>=0.22"]
 
 [tool.hatch.build.targets.wheel]
